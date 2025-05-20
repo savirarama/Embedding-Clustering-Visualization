@@ -5,6 +5,7 @@ import os
 import json
 from sklearn.metrics import precision_recall_fscore_support
 from collections import defaultdict
+import argparse
 
 def load_data(csv_file_path, npy_file_path):
     """
@@ -175,21 +176,37 @@ def find_similar_commits(commit_input_hash, n, df_commits, all_embeddings, targe
 
 # --- Main execution ---
 if __name__ == "__main__":
+    # Set up argument parser
+    parser = argparse.ArgumentParser(description='Find similar commits based on embeddings.')
+    parser.add_argument('--csv', type=str,
+                      help='Path to the CSV file containing commit information')
+    parser.add_argument('--npy', type=str, default='embedding/compressed_embeddings.npy',
+                      help='Path to the NPY file containing commit embeddings')
+    parser.add_argument('--query', type=str, default='data/sid.json',
+                      help='Path to the JSON file containing query commits')
+    parser.add_argument('--output-recommendations', type=str, 
+                      help='Path to save recommendation results')
+    parser.add_argument('--output-ranks', type=str,
+                      help='Path to save ranking results')
+    parser.add_argument('--num-similar', type=int, default=10,
+                      help='Number of top similar commits to retrieve')
+
+    args = parser.parse_args()
+
     # --- Configuration ---
-    CSV_FILE_PATH = 'data/test.csv'
-    NPY_FILE_PATH = 'embedding/compressed_embeddings.npy'
-    QUERY_JSON_PATH = 'data/sid.json'  
-    SAVE_RESULTS_PATH = 'recommendation_results/compressed_recommendation_results.json'
-    SAVE_RANK_RESULTS_PATH = 'recommendation_results/compressed_rank_results.json'
+    csv_file_path = args.csv
+    npy_file_path = args.npy
+    query_json_path = args.query
+    save_results_path = args.output_recommendations
+    save_ranks_path = args.output_ranks
+    num_similar_commits = args.num_similar
 
     print("Loading commit data...")
-    df_all_commits, all_commit_embeddings = load_data(CSV_FILE_PATH, NPY_FILE_PATH)
+    df_all_commits, all_commit_embeddings = load_data(csv_file_path, npy_file_path)
 
-    print(f"Loading query commits from '{QUERY_JSON_PATH}'...")
-    query_entries = load_query_commits(QUERY_JSON_PATH)
+    print(f"Loading query commits from '{query_json_path}'...")
+    query_entries = load_query_commits(query_json_path)
 
-    # Number of top similar commits to retrieve
-    num_similar_commits = 10
 
     if df_all_commits is not None and all_commit_embeddings is not None and query_entries:
         # Initialize results
@@ -268,10 +285,10 @@ if __name__ == "__main__":
         # Save both outputs
         os.makedirs("recommendation_results", exist_ok=True)
 
-        with open(SAVE_RESULTS_PATH, "w") as f:
+        with open(save_results_path, "w") as f:
             json.dump(recommendation_results, f, indent=4)
-            print(f"\n✔️ Recommendation results written to {SAVE_RESULTS_PATH}")
+            print(f"\n✔️ Recommendation results written to {save_results_path}")
 
-        with open(SAVE_RANK_RESULTS_PATH, "w") as f:
+        with open(save_ranks_path, "w") as f:
             json.dump(rank_results, f, indent=4)
-            print(f"✔️ Ranking results written to {SAVE_RANK_RESULTS_PATH}")
+            print(f"✔️ Ranking results written to {save_ranks_path}")
