@@ -40,9 +40,20 @@ This project compresses and visualizes commit message embeddings using a Multi-L
 
 ## Requirements
 
+Python 3.8+ is required. Install dependencies using:
+
 ```bash
 pip install -r requirements.txt
 ```
+
+Required packages:
+- pandas: Data manipulation and analysis
+- numpy: Numerical computing
+- scikit-learn: Machine learning utilities
+- jupyter: Interactive notebook interface
+- matplotlib: Visualization
+- seaborn: Statistical data visualization
+- torch: PyTorch for MLP implementation
 
 ## Usage
 
@@ -62,7 +73,7 @@ The notebook will:
 Run the similarity search script:
 
 ```bash
-python return_similar_commits.py
+python return_similar_commits.py --csv data/test.csv --npy embedding/compressed_embeddings.npy --query data/sid.json --output-recommendations recommendation_results/compressed_recommendation_results.json --output-ranks recommendation_results/compressed_rank_results.json --num-similar 10
 ```
 
 This will:
